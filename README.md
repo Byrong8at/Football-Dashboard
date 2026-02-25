@@ -4,9 +4,9 @@
 
 ---
 ## Etape actuelle:
-Recup pour plusieurs années (fait, voir si je rajoute pas un truc qu'on peut faire pour faire comparaison)
-Recup des match et des résultats pour cette année et ensuite année precedente
-Et ensuite stat en détail
+Recup pour plusieurs années (Done)
+Recup des match et des résultats pour cette année et ensuite année precedente (recup lien en détail des matchs aussi)
+Et ensuite stat en détail (Je pense utilisé resultat et voir pour le home/exterieur)
 
 
 ## 📋 Étape 1 : Extraction des Données (Scraping)

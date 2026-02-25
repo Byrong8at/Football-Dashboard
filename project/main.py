@@ -29,11 +29,9 @@ if selected_club!=None:
     
     stats=conv_val(df_Club.loc[df_Club['Club'] == selected_club, 'Stat'].iloc[0])
     
-    years = list(stats.keys())
-    years= [ int(x+1) for x in years ]
-    selected_year = st.selectbox("Choisir l'année :", options=years, index=0)
+    years = sorted(list(stats.keys()), reverse=True)
 
-    col1, col2 = st.columns([0.3, 1])#determine distance behind each column
+    col1, col2, col3 = st.columns([0.3, 1, 1]) #determine distance behind each column
 
     with col1:
         #st.write(df_Club)
@@ -49,47 +47,56 @@ if selected_club!=None:
             unsafe_allow_html=True
         )
 
-    with col2:
-        if stats[selected_year-1][0]!="No data":
-            if isinstance(stats, str):
-                stats = ast.literal_eval(stats)
+    def clean_val(val):
+        v = str(val).replace('-', '0').strip()
+        return int(v) if v.isdigit() else 0
 
-            stats = stats[selected_year-1][0]
+    def render_stats(year_to_show, key_suffix):
+        stat_data = stats.get(year_to_show)
+        
+        if stat_data and stat_data[0] != "No data":
+            current_stat = stat_data[0]
 
-
-            st.subheader(f"Statistiques de la Saison {selected_year}")
+            st.subheader(f"Statistiques de la Saison {year_to_show}")
             
-            m1, m2, m3, m4 = st.columns(4)
-            m1.metric("Matches", stats['matches'])
-            m2.metric("Victoires", stats['wins'])
-            try:
-                m3.metric("Nuls", clean_val(stats['draws']))
-                m4.metric("Défaites", clean_val(stats['losses']))
-            except:
-                m3.metric("Nuls", stats['draws'])
-                m4.metric("Défaites", stats['losses'])
+            m_a, m_b, m_c, m_d = st.columns(4)
+            m_a.metric("Matches", current_stat['matches'])
+            m_b.metric("Victoires", current_stat['wins'])
+            m_c.metric("Nuls", clean_val(current_stat['draws']))
+            m_d.metric("Défaites", clean_val(current_stat['losses']))
 
             st.divider()
             
-            m5, m6 = st.columns(2)
+            m_left, m_right = st.columns(2)
             ##Generate Graph
             
-            with m5:
+            with m_left:
                 df_result = pd.DataFrame({
                 "Result": ["Victoires", "Nuls", "Défaites"],
-                "Value": [stats['wins'], stats['draws'], stats['losses']]
+                "Value": [current_stat['wins'], clean_val(current_stat['draws']), clean_val(current_stat['losses'])]
                 })
                 st.write("### Graphique Résultat:")
                 fig1 = go.Figure(data=[go.Pie(labels=df_result["Result"], values=df_result["Value"], hole=.3)])
-                st.plotly_chart(fig1, config={'displayModeBar': False})
-            with m6:
+                fig1.update_layout(showlegend=False, height=250, margin=dict(l=10,r=10,b=10,t=10))
+                st.plotly_chart(fig1, config={'displayModeBar': False}, key=f"res_{key_suffix}")
+            
+            with m_right:
                 df_goals = pd.DataFrame({
                 "Type": ["Marqués", "Encaissés"],
-                "Goal": [stats['Goals_for'], stats['Goal_Again']]
+                "Goal": [clean_val(current_stat['Goals_for']), clean_val(current_stat['Goal_Again'])]
                 })
-
-                fig = go.Figure(data=[go.Pie(labels=df_goals["Type"], values=df_goals["Goal"], hole=.3)])
                 st.write("### Bilan des Buts:")
-                st.plotly_chart(fig,  config={'displayModeBar': False})
+                fig2 = go.Figure(data=[go.Pie(labels=df_goals["Type"], values=df_goals["Goal"], hole=.3)])
+                fig2.update_layout(showlegend=False, height=250, margin=dict(l=10,r=10,b=10,t=10))
+                st.plotly_chart(fig2, config={'displayModeBar': False}, key=f"goal_{key_suffix}")
         else:
             st.info("Aucune data existante n'a été trouvé")
+
+    with col2:
+        selected_year_1 = st.selectbox("Choisir l'année :", options=years, index=0, key="year1")
+        render_stats(selected_year_1, "col2")
+
+    with col3:
+        idx_2 = 1 if len(years) > 1 else 0
+        selected_year_2 = st.selectbox("Choisir l'année :", options=years, index=idx_2, key="year2")
+        render_stats(selected_year_2, "col3")
