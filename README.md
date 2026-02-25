@@ -3,6 +3,11 @@
 # ⚽ K-League Data Pipeline & Automation
 
 ---
+## Etape actuelle:
+Recup pour plusieurs années (fait, voir si je rajoute pas un truc qu'on peut faire pour faire comparaison)
+Recup des match et des résultats pour cette année et ensuite année precedente
+Et ensuite stat en détail
+
 
 ## 📋 Étape 1 : Extraction des Données (Scraping)
 Mise en place des scripts pour récupérer les données exhaustives des ligues (K League 1, 2, 3, 4).

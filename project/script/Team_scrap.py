@@ -64,7 +64,7 @@ def Get_Detail_Goal(data):
             rows = stats_table.find('tfoot').find_all('tr')                
             for row in rows:
                 cols = row.find_all('td')                        
-                if len(cols) >= 6:
+                if len(cols) >= 3:
                     score_raw = cols[6].text.strip()
                     goals_for, goals_against = score_raw.split(":")
                     Detail.append({"matches" : cols[1].text.strip(),
@@ -95,6 +95,7 @@ def Get_Team(clubs):
     """
     print("Fetch Club data")
     Club_info = []
+    
     for club in clubs:
         url = club.get("Link")
         name = club.get("Club Name")
@@ -105,11 +106,30 @@ def Get_Team(clubs):
             data = connection(link_url)
             #two file one with club one with player
             if data:
+                    print(club)
                     link,icon=Get_Rows(data)
                     link_url = link_url.replace("/startseite/", "/spielplan/")
                     data_club = connection(link_url)
+                    prefixe = link_url.rsplit('/', 1)[0]
+                    year=link_url.rsplit('/', 1)[1]
+                    year=int(year)
+                    detail={}
                     if data_club:
-                        detail=Get_Detail_Goal(data_club)
+                        detail[year]=Get_Detail_Goal(data_club)
+
+                    year_=year-1
+                    nouvelle_url = f"{prefixe}/{year_}"
+                    while year-year_<=2:
+                        data_udp = connection(nouvelle_url)
+                        if data_udp:
+                            try:
+                                detail[year_]=Get_Detail_Goal(data_udp)
+                            except:
+                                detail[year_]=["No data"]
+                                print(f"no data for{club} in {year_}")
+                        year_-=1
+                        nouvelle_url = f"{prefixe}/{year_}"
+
 
                     Club_info.append({
                             "Club": name,
@@ -119,7 +139,7 @@ def Get_Team(clubs):
                             "Player_Link": link
                         })
                     
-        time.sleep(5)
+        time.sleep(30)
 
     # Creation of the dataframe
     if Club_info:
