@@ -5,8 +5,8 @@
 ---
 ## Etape actuelle:
 Recup pour plusieurs années (Done)
-Recup des match et des résultats pour cette année et ensuite année precedente (recup lien en détail des matchs aussi)
-Et ensuite stat en détail (Je pense utilisé resultat et voir pour le home/exterieur)
+Recup des match et des résultats pour cette année et ensuite année precedente (Done)
+Et ensuite stat en détail (Je pense utilisé resultat et voir pour le home/exterieur utilisé code dans test posisble pour ca, Recup stat des matchs avec les liens dans l'excel (faire un truc pour check uniequement les stat des matchs de k1 et ldc y'a pas le reste))
 
 
 ## 📋 Étape 1 : Extraction des Données (Scraping)

@@ -31,7 +31,7 @@ if selected_club!=None:
     
     years = sorted(list(stats.keys()), reverse=True)
 
-    col1, col2, col3 = st.columns([0.3, 1, 1]) #determine distance behind each column
+    col1, col2, col3 = st.columns([0.5, 0.8, 0.8]) #determine distance behind each column
 
     with col1:
         #st.write(df_Club)
@@ -57,7 +57,7 @@ if selected_club!=None:
         if stat_data and stat_data[0] != "No data":
             current_stat = stat_data[0]
 
-            st.subheader(f"Statistiques de la Saison {year_to_show}")
+            st.subheader(f"Statistiques de la Saison {year_to_show+1}")
             
             m_a, m_b, m_c, m_d = st.columns(4)
             m_a.metric("Matches", current_stat['matches'])
@@ -93,10 +93,47 @@ if selected_club!=None:
             st.info("Aucune data existante n'a été trouvé")
 
     with col2:
-        selected_year_1 = st.selectbox("Choisir l'année :", options=years, index=0, key="year1")
+        selected_year_1 = st.selectbox("Choisir l'année :", options=years, index=0, key="year1",format_func=lambda option: f"{int(option) + 1}")
         render_stats(selected_year_1, "col2")
 
     with col3:
         idx_2 = 1 if len(years) > 1 else 0
-        selected_year_2 = st.selectbox("Choisir l'année :", options=years, index=idx_2, key="year2")
+        selected_year_2 = st.selectbox("Choisir l'année :", options=years, index=idx_2, key="year2",format_func=lambda option: f"{int(option) + 1}")
         render_stats(selected_year_2, "col3")
+
+
+    raw_data = df_Club.loc[df_Club['Club'] == selected_club, 'Match_Stat'].iloc[0]
+
+    if isinstance(raw_data, str):
+        data_dict = ast.literal_eval(raw_data)
+    else:
+        data_dict = raw_data
+
+    
+
+    matchs = data_dict.get(selected_year_1) or data_dict.get(selected_year_1, [])
+
+    df_matchs = pd.DataFrame(matchs)
+    
+    st.write(f"Saison {selected_year_1+1}:")
+    try:
+        competition=list(np.unique(df_matchs['Type']))
+        for mtc in competition:
+            
+            df_filtre = df_matchs[df_matchs['Type'] == mtc]
+            url = df_filtre["Icon"].iloc[0]
+            st.markdown(f"![icon]({url}) **{mtc}:**", unsafe_allow_html=True)
+            df_display = df_filtre[[
+            "Matches", "Date", "Time", "Venue", "Rank", 
+            "Opponent", "System", "Attendance", "Score"
+            ]].copy()
+            
+            df_display.columns = [
+                "Journée", "Date", "Heure", "Lieu", "Rang", 
+                "Adversaire", "Système", "Publique", "Score"
+            ]
+
+            st.dataframe(df_display, use_container_width=True, hide_index=True)
+            st.divider()
+    except:
+        st.info("Aucune data existante n'a été trouvé")

@@ -51,6 +51,9 @@ def Get_Rows(data):
     return link, icon
 
 def Get_Detail_Goal(data):
+    """
+    Get statistic like Wins,matches overall the season
+    """
     Detail=[]
     soup = BeautifulSoup(data.content, 'html.parser')
     
@@ -82,6 +85,68 @@ def Get_Detail_Goal(data):
                                     "Goal_Again" : 0})
     return Detail
 
+def Get_Matches(data):
+    """
+    Get information from all matchs during the season
+    """
+    Detail=[]
+    soup = BeautifulSoup(data.content, 'html.parser')
+    titres_h2 = soup.find_all('h2', class_='content-box-headline--inverted')
+    
+    if not titres_h2:
+        print("Error: no data find.")
+        return ["No data found"]
+    for index, titre in enumerate(titres_h2, 1):
+        
+        competition = titre.get_text(strip=True)
+        img_tag = titre.find('img')
+        icon = img_tag['src'] if img_tag and 'src' in img_tag.attrs else "Pas de logo"
+        
+        stats_table = titre.find_next('table')
+        
+        if stats_table:
+            tbody = stats_table.find('tbody')
+            
+            if tbody: 
+                rows = tbody.find_all('tr')
+                for row in rows:
+                    cols = row.find_all('td')
+                    
+                    if len(cols) >= 9:
+                        #No value for col 5
+                        matches = cols[0].text.strip()
+                        date    = cols[1].text.strip()
+                        time    = cols[2].text.strip()
+                        Venu    = cols[3].text.strip()
+                        rang    = cols[4].text.strip()
+                        opp= cols[6].text.strip()
+                        sys= cols[7].text.strip()
+                        sup= cols[8].text.strip()
+                        
+                        score_cel = cols[9]
+                        score = score_cel.text.strip()
+                        
+                        link_score = score_cel.find('a')
+                        link_href = link_score['href'] if link_score and 'href' in link_score.attrs else "Pas de lien"
+                        Detail.append({
+                            "Type":competition,
+                            "Icon":icon,
+                            "Matches": matches,
+                            "Date": date,
+                            "Time": time,
+                            "Venue":Venu,
+                            "Rank": rang,
+                            "Opponent": opp,
+                            "System": sys,
+                            "Attendance": sup,
+                            "Score":score,
+                            "Match_Link" : link_href
+                        })
+            else:
+                return ["No data"]
+        else:
+            return ["No data"]
+    return Detail      
 
 def Get_Team(clubs):
     """
@@ -114,8 +179,10 @@ def Get_Team(clubs):
                     year=link_url.rsplit('/', 1)[1]
                     year=int(year)
                     detail={}
+                    matches={}
                     if data_club:
                         detail[year]=Get_Detail_Goal(data_club)
+                        matches[year]=Get_Matches(data_club)
 
                     year_=year-1
                     nouvelle_url = f"{prefixe}/{year_}"
@@ -124,9 +191,12 @@ def Get_Team(clubs):
                         if data_udp:
                             try:
                                 detail[year_]=Get_Detail_Goal(data_udp)
+                                matches[year_]=Get_Matches(data_udp)
                             except:
                                 detail[year_]=["No data"]
+                                matches[year_]=["No data"]
                                 print(f"no data for{club} in {year_}")
+                            
                         year_-=1
                         nouvelle_url = f"{prefixe}/{year_}"
 
@@ -136,7 +206,8 @@ def Get_Team(clubs):
                             "Team_Icon": icon,
                             "League": league,
                             "Stat":detail,
-                            "Player_Link": link
+                            "Player_Link": link,
+                            "Match_Stat":matches
                         })
                     
         time.sleep(30)
