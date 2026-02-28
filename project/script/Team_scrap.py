@@ -148,7 +148,22 @@ def Get_Matches(data):
             return ["No data"]
     return Detail      
 
-def Get_Team(clubs):
+def Csv_creation(data,chemin,year):
+    """
+    Creation for each CSV file 
+    Data: Content from data extract
+    Chemin: Path to upload files
+    year: Year of the data
+    """
+    try:
+        df = pd.DataFrame(data)
+        filename = os.path.join(chemin, f'Clubs_{year+1}.csv')
+        df.to_csv(filename, index=False)
+        print(f"\nSuccess! Data saved to {filename}")
+    except Exception as e:
+        print("Error",e)
+
+def Get_Team(clubs,years):
     """
     Get Team from request from club information
     List:
@@ -159,7 +174,7 @@ def Get_Team(clubs):
     Club_info: List
     """
     print("Fetch Club data")
-    Club_info = []
+    data_by_year = {year: [] for year in years}
     
     for club in clubs:
         url = club.get("Link")
@@ -173,59 +188,43 @@ def Get_Team(clubs):
             if data:
                     print(club)
                     link,icon=Get_Rows(data)
-                    link_url = link_url.replace("/startseite/", "/spielplan/")
-                    data_club = connection(link_url)
-                    prefixe = link_url.rsplit('/', 1)[0]
-                    year=link_url.rsplit('/', 1)[1]
-                    year=int(year)
-                    detail={}
-                    matches={}
-                    if data_club:
-                        detail[year]=Get_Detail_Goal(data_club)
-                        matches[year]=Get_Matches(data_club)
-
-                    year_=year-1
-                    nouvelle_url = f"{prefixe}/{year_}"
-                    while year-year_<=2:
+                    prefixe = link_url.replace("/startseite/", "/spielplan/").rsplit('/', 1)[0]
+                    for y in years:
+                        nouvelle_url = f"{prefixe}/{y}"
                         data_udp = connection(nouvelle_url)
                         if data_udp:
                             try:
-                                detail[year_]=Get_Detail_Goal(data_udp)
-                                matches[year_]=Get_Matches(data_udp)
+                                detail=Get_Detail_Goal(data_udp)
+                                matches=Get_Matches(data_udp)
                             except:
-                                detail[year_]=["No data"]
-                                matches[year_]=["No data"]
-                                print(f"no data for{club} in {year_}")
-                            
-                        year_-=1
-                        nouvelle_url = f"{prefixe}/{year_}"
+                                detail=["No data"]
+                                matches=["No data"]
+                                print(f"no data for{club} in {y}")
+                        else:
+                            detail=["No data"]
+                            matches=["No data"]
+                            print(f"no data for{club} in {y}") 
 
-
-                    Club_info.append({
-                            "Club": name,
-                            "Team_Icon": icon,
-                            "League": league,
-                            "Stat":detail,
-                            "Player_Link": link,
-                            "Match_Stat":matches
-                        })
+                        data_by_year[y].append({
+                                "Year": y,
+                                "Club": name,
+                                "Team_Icon": icon,
+                                "League": league,
+                                "Stat":detail,
+                                "Player_Link": link,
+                                "Match_Stat":matches
+                            })
                     
-        time.sleep(30)
+        time.sleep(15)
 
-    # Creation of the dataframe
-    if Club_info:
-        df = pd.DataFrame(Club_info)
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        data_dir = os.path.join(base_dir, '..', 'data')
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    data_dir = os.path.join(base_dir, '..', 'data')
 
-        if not os.path.exists(data_dir):
-            os.makedirs(data_dir)
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
 
-        filename = os.path.join(data_dir, 'Clubs.csv')
-        df.to_csv(filename, index=False)
-
-        print(f"\nSuccess! Data saved to {filename}")
-    else:
-        print("No data found.")
-
-    return Club_info
+    for year,clubs in data_by_year.items():
+        if clubs:
+            Csv_creation(clubs,data_dir,year)
+            
+    return 200
