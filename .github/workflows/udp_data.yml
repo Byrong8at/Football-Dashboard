@@ -33,6 +33,7 @@ jobs:
         run: |
           cd project
           python script_launcher.py
+          
       - name: Commit changes
         run: |
           git config --global user.name "github-actions[bot]"
