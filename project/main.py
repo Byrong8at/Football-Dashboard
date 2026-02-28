@@ -6,6 +6,14 @@ import numpy as np
 from script.load_df import *
 import ast
 import plotly.graph_objects as go
+from datetime import date
+import re
+
+#variable configuration
+current_date = date.today()
+current_year = current_date.year
+y_=current_year-1
+y_t=y_-1
 
 # Page Configuration
 st.set_page_config(page_title="Football Dashboard", layout="wide")
@@ -33,7 +41,7 @@ selected_club = st.sidebar.selectbox(
 )
 
 if selected_club != None:
-    st.write(df_Club)
+    #st.write(df_Club)
     df_selected = df_Club[df_Club['Club'] == selected_club]
     
     stats = {}
@@ -351,5 +359,11 @@ if selected_club != None:
         matchs = data_dict.get(i) or data_dict.get(i, [])
         df_matchs = pd.DataFrame(matchs)
         Get_match_Year(df_matchs,i)
+
     
     st.markdown(f"### {selected_club} face aux autres équipes en championnat cette année:")
+    Get_All_Match(y_,df_Club,selected_club)
+    st.markdown(f"### {selected_club} face aux autres équipes en championnat l'année dernière:")
+    Get_All_Match(y_t,df_Club,selected_club)
+
+    

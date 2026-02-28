@@ -122,6 +122,8 @@ def Get_Matches(data):
                         opp= cols[6].text.strip()
                         sys= cols[7].text.strip()
                         sup= cols[8].text.strip()
+                        if competition=="K League 2" or competition=="K League 1":
+                            champ=competition
                         
                         score_cel = cols[9]
                         score = score_cel.text.strip()
@@ -146,7 +148,7 @@ def Get_Matches(data):
                 return ["No data"]
         else:
             return ["No data"]
-    return Detail      
+    return Detail,champ     
 
 def Csv_creation(data,chemin,year):
     """
@@ -179,8 +181,6 @@ def Get_Team(clubs,years):
     for club in clubs:
         url = club.get("Link")
         name = club.get("Club Name")
-        league = club.get("League")
-
         if url:
             link_url = f"https://www.transfermarkt.com{url}"
             data = connection(link_url)
@@ -195,8 +195,9 @@ def Get_Team(clubs,years):
                         if data_udp:
                             try:
                                 detail=Get_Detail_Goal(data_udp)
-                                matches=Get_Matches(data_udp)
+                                matches,champ=Get_Matches(data_udp)
                             except:
+                                champ="No champ define"
                                 detail=["No data"]
                                 matches=["No data"]
                                 print(f"no data for{club} in {y}")
@@ -209,7 +210,7 @@ def Get_Team(clubs,years):
                                 "Year": y,
                                 "Club": name,
                                 "Team_Icon": icon,
-                                "League": league,
+                                "League": champ,
                                 "Stat":detail,
                                 "Player_Link": link,
                                 "Match_Stat":matches
