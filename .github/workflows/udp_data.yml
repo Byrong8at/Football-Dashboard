@@ -2,8 +2,6 @@ name: Run script and push
 
 on:
   workflow_dispatch:   # Manual trigger
-  push:
-    branches: [ main ] 
   schedule:
   #m,h,d,mo,dow
     - cron: "0 12 * * 0"
@@ -33,7 +31,7 @@ jobs:
         run: |
           cd project
           python script_launcher.py
-          
+
       - name: Commit changes
         run: |
           git config --global user.name "github-actions[bot]"
