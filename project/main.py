@@ -346,11 +346,10 @@ if selected_club != None:
                 st.info("Aucune data existante n'a été trouvé")
                 st.error(e)#a cacher après
         return
-    
-    year_match=list(data_dict.keys())
+    year_match = sorted(list(data_dict.keys()), reverse=True)
     for i in year_match:
         matchs = data_dict.get(i) or data_dict.get(i, [])
         df_matchs = pd.DataFrame(matchs)
         Get_match_Year(df_matchs,i)
     
-    st.markdown(f"### {selected_club} face aux autres équipes en championnat:")
+    st.markdown(f"### {selected_club} face aux autres équipes en championnat cette année:")
