@@ -122,8 +122,10 @@ def Get_Matches(data):
                         opp= cols[6].text.strip()
                         sys= cols[7].text.strip()
                         sup= cols[8].text.strip()
-                        if competition=="K League 2" or competition=="K League 1":
+                        if competition=="K League 2" or competition=="K League 1" or competition=="K league 3":
                             champ=competition
+                        else:
+                            champ="No champ available"
                         
                         score_cel = cols[9]
                         score = score_cel.text.strip()

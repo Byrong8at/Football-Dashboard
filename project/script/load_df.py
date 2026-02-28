@@ -95,10 +95,11 @@ def style_df(df):
 
 def Get_All_Match(y_,df_Club,selected_club):
         club_y=df_Club[(df_Club["Year"] == (y_)) & (df_Club["Club"] == selected_club)]#probleme la ligue de ctte année, donc manque deux équipe en plus
+        if club_y.empty:
+            return st.info(f"Aucune donnée de ligue trouvée pour {selected_club} en {y_}.")
         nom_ligue = club_y['League'].iloc[0]
         filter_league = df_Club[(df_Club["Year"] == (y_)) & (df_Club["League"] == nom_ligue)]
-        if nom_ligue.empty:
-            return st.info(f"Aucune donnée de ligue trouvée pour {selected_club} en {y_}.")
+
         
         data_graph = []
 
