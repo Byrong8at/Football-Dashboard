@@ -23,7 +23,7 @@ logo_path = os.path.join(parent_dir, "src", "logo.png")
 st.sidebar.image(logo_path,width=100)
 st.sidebar.title("Football Dashboard")
 
-@st.cache_data
+@st.cache_data(ttl=3600)
 def Load_data():
     return load_all_csv(os.path.dirname(os.path.abspath(__file__)))
 
